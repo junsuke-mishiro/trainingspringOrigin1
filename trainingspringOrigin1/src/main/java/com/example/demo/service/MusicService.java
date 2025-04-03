@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.dto.MusicRequest;
+import com.example.demo.dto.MusicUpdateRequest;
 import com.example.demo.entity.Music;
 import com.example.demo.repository.MusicRepository;
 
@@ -42,6 +43,10 @@ public class MusicService {
 		return musicRepository.findById(id).get();
 	}
 
+	/**
+	 * 曲情報　新規登録
+	 * @param musicRequest　曲情報
+	 */
 	public void save(MusicRequest musicRequest) {
 		Date now = new Date();
 		Music music = new Music();
@@ -49,6 +54,14 @@ public class MusicService {
 		music.setPerson(musicRequest.getPerson());
 		music.setCreateDate(now);
 		music.setUpdateDate(now);
+		musicRepository.save(music);
+	}
+
+	public void update(MusicUpdateRequest musicUpdateRequest) {
+		Music music = findById(musicUpdateRequest.getId());
+		music.setName(musicUpdateRequest.getName());
+		music.setPerson(musicUpdateRequest.getPerson());
+		music.setUpdateDate(new Date());
 		musicRepository.save(music);
 	}
 }

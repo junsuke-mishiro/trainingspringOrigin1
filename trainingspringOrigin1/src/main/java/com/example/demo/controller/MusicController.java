@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.example.demo.dto.MusicRequest;
+import com.example.demo.dto.MusicUpdateRequest;
 import com.example.demo.entity.Music;
 import com.example.demo.service.MusicService;
 
@@ -88,5 +89,47 @@ public class MusicController {
 		Music music = musicService.findById(id);
 		model.addAttribute("musicData", music);
 		return "music/view";
+	}
+
+	/**
+	 * 曲編集画面を表示
+	 * @param id 表示する曲
+	 * @param model Model
+	 * @return 曲編集画面
+	 */
+	@GetMapping("/music/{id}/edit")
+	public String displayEdit(@PathVariable Long id, Model model) {
+		Music music = musicService.findById(id);
+		MusicUpdateRequest musicUpdateRequest = new MusicUpdateRequest();
+		musicUpdateRequest.setId(music.getId());
+		musicUpdateRequest.setName(music.getName());
+		musicUpdateRequest.setPerson(music.getPerson());
+		model.addAttribute("musicUpdateRequest", musicUpdateRequest);
+		return "music/edit";
+	}
+
+	/**
+	 * 曲更新
+	 * @param musicUpdateRequest　リクエストデータ
+	 * @param result
+	 * @param model　Model
+	 * @return　曲情報詳細画面
+	 */
+	@RequestMapping(value = "/music/update", method = RequestMethod.POST)
+	public String update(@Validated @ModelAttribute MusicUpdateRequest musicUpdateRequest, BindingResult result,
+			Model model) {
+
+		if (result.hasErrors()) {
+			List<String> errorList = new ArrayList<String>();
+			for (ObjectError error : result.getAllErrors()) {
+				errorList.add(error.getDefaultMessage());
+			}
+			model.addAttribute("ValidationError", errorList);
+			return "music/edit";
+		}
+
+		//曲情報の更新
+		musicService.update(musicUpdateRequest);
+		return String.format("redirect:/music/%d", musicUpdateRequest.getId());
 	}
 }
